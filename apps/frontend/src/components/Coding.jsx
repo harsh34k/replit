@@ -556,6 +556,7 @@ function Coding() {
 
     return (
         <div className="flex h-screen">
+            {console.log("foldercontentfromparent", folderContent)}
             <FileExplorer socket={socket} filesAndFolders={rootFilesAndFolders} inputLable={inputLable} folderContent={folderContent} />
             <CodeEditor />
             <Terminal />
@@ -581,182 +582,283 @@ function handleParentFolderClick(item, socket, setSelectedFolder) {
     // }
     // Use type as needed
 }
-function handleSubFolderClick(item, setShowSubFolderContent, setSelectedChildFolder) {
+// function handleSubFolderClick(item, setShowSubFolderContent, setSelectedChildFolder) {
+//     // console.log("item", item);
+//     // // if (item.type === 'file') {
+//     // // Request file content from the backend
+//     // // socket.emit("get-file-content", item.name); // Assuming item has a filePath property
+//     // // } else if (item.type === 'folder') {
+//     // socket.emit("get-folder-contents", item.name); // Assuming item has a folderPath property
+//     setShowSubFolderContent(true),
+//         setSelectedChildFolder(item)
+
+//     // }
+//     // Use type as needed
+// }
+
+// function FileExplorer({ filesAndFolders, inputLable, socket, folderContent }) {
+//     const rootDir = `./public/${inputLable}`;
+//     const [selectedParentFolder, setSelectedParentFolder] = useState(null);
+//     const [showSubFolderContent, setShowSubFolderContent] = useState(false);
+//     const [selectedChildFolder, setSelectedChildFolder] = useState(null);
+//     const [currentDir, setCurrentDir] = useState(rootDir);
+
+//     if (!filesAndFolders || filesAndFolders.length === 0) {
+//         return (
+//             <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
+//                 <h2 className="text-lg font-semibold p-4">File Explorer</h2>
+//                 <div className="p-4 flex justify-center items-center h-full">
+//                     Loading...
+//                 </div>
+//             </div>
+//         );
+//     }
+
+//     return (
+//         <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
+//             <h2 className="text-lg font-semibold p-4">File Explorer</h2>
+//             <div className="p-4">
+//                 {filesAndFolders.map(item => {
+//                     if (item.type === 'folder') {
+//                         // Render select component for folders
+//                         return (
+//                             <div key={item.name} className="flex items-center mb-2 cursor-pointer" >
+//                                 <div className=''>
+//                                     <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+//                                     <span onClick={() => handleParentFolderClick(item, socket, setSelectedParentFolder)}>{item.name}</span>
+
+//                                     {selectedParentFolder && selectedParentFolder.name == item.name ? (
+//                                         <div>
+//                                             {/* <h3>Contents of {selectedParentFolder.name}:</h3> */}
+//                                             <ul>
+//                                                 {folderContent.map((item, index) => (
+//                                                     console.log("itemofitem", item),
+//                                                     item.type === "folder" ?
+//                                                         <div key={index}>
+//                                                             <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+//                                                             <span onClick={() => handleSubFolderClick(item, setShowSubFolderContent, setSelectedChildFolder)}>{item.name}</span>
+//                                                             {console.log("selectedChild folder", selectedChildFolder?.children)}
+//                                                             {console.log("showSubFolderContent", showSubFolderContent)}
+
+//                                                             {showSubFolderContent ?
+//                                                                 //  console.log("selected child folder", selectedChildFolder)
+//                                                                 selectedChildFolder?.children.map((item, index) => {
+//                                                                     return <div key={index}>
+//                                                                         <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+//                                                                         <span onClick={() => handleSubFolderClick(item, setShowSubFolderContent, setSelectedChildFolder)} >{item.name}</span>
+//                                                                     </div>
+//                                                                 })
+
+//                                                                 : ""}
+//                                                         </div>
+//                                                         : <div key={index}>
+//                                                             <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+//                                                             <span >{item.name}</span>
+//                                                         </div>
+//                                                 ))}
+//                                             </ul>
+//                                         </div>
+//                                     ) : ""}
+//                                 </div>
+//                                 {/* {selectedFolder && (
+//                                     <div>
+//                                         <h3>Contents of {selectedFolder.name}:</h3>
+//                                         <ul>
+//                                             {folderContent.map((item, index) => (
+//                                                 <li key={index}>{item.name}</li>
+//                                             ))}
+//                                         </ul>
+//                                     </div>
+//                                 )} */}
+
+//                             </div>
+
+
+//                         );
+//                     } else {
+//                         // Render div for files
+//                         return (
+//                             <div key={item.name} className="flex items-center mb-2 cursor-pointer" onClick={() => handleFileClick(item, socket)}>
+//                                 <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+//                                 <span>{item.name}</span>
+//                             </div>
+//                         );
+//                     }
+//                 })}
+//                 {/* <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
+//             <h2 className="text-lg font-semibold p-4">File Explorer</h2>
+//             <div className="p-4">
+//                 {filesAndFolders.map(item => (
+
+//                     <div key={item.name} className="flex items-center mb-2 cursor-pointer" onClick={() => handleFileOrFolderClick(item, currentDir, setCurrentDir, socket)}>
+//                         <img src={item.type === 'file' ? "file-icon.png" : "folder-icon.png"} alt="Icon" className="w-6 h-6 mr-2" />
+//                         <span>{item.name}</span>
+//                     </div>
+//                 ))}
+//             </div>
+//         </div> */}
+//             </div>
+//         </div>
+//     );
+// }
+// import React, { useState } from 'react';
+
+const FileExplorer = ({ filesAndFolders, inputLable, socket, folderContent }) => {
+    console.log("foldercontentfromchild", folderContent);
+    const [showChildren, setShowChildren] = useState(false)
+    const [currentFolder, setCurrentFolder] = useState("")
+    const [isOpen, setIsOpen] = useState(false);
+    const [clickCount, setClickCount] = useState(0); // State to track folder click count
+    // const [folderContent1, setFolderContent1] = useState([]); // State to track folder click count
+    const folderContent1 = folderContent ? folderContent : [];
+    // setFolderContent1(folderContent)
+
+    console.log("foldercontent1", folderContent1);
+    console.log("realfoldercontent", folderContent);
+
+    // Function to handle click on a folder
+    const toggleFolder = (folder) => {
+        socket.emit("get-folder-contents", folder.name);
+        setIsOpen(!isOpen);
+        setCurrentFolder(folder.name)
+        setClickCount(clickCount + 1); // Increment click count
+    };
+
+    // Function to recursively render folder contents
+    const renderContents = (items) => {
+        return items?.map(item => {
+            if (item.type === 'folder') {
+                const folderChildren = item.children || [];
+                return (
+
+                    <div key={item.name} id='' className=" mb-2 cursor-pointer"  >
+                        <img src="folder-icon.png" alt="Folder Icon" className="w-6 h-6 mr-2" />
+                        <span onClick={() => toggleFolder(item)}>{item.name}</span>
+                        {isOpen && (currentFolder === item.name) && (
+                            // <div style={{ marginLeft: '20px' }}>
+                            //     {console.log("foldercontent12343455", folderContent1)}
+                            //     <p>hi</p>
+                            <>
+                                {renderSubFolder(folderContent1, showChildren, setShowChildren)}
+                            </>
+                            // {/* </div> */}
+                        )}
+                    </div>
+
+                );
+            } else {
+                return (
+                    <div key={item.name} className="flex items-center mb-2 cursor-pointer" onClick={() => handleFileClick(item, socket)}>
+                        <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+                        <div>{item.name}</div>
+                    </div>
+                );
+            }
+        });
+    };
+
+    return (
+        <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
+            <h2 className="text-lg font-semibold p-4">File Explorer</h2>
+            <div className="p-4">
+
+                {console.log("filesandfolders", filesAndFolders)}
+                {renderContents(filesAndFolders)}
+                {/* {isOpen && (
+                    <div style={{ marginLeft: '20px' }}>
+                        {console.log("foldercontent12343455", folderContent1)}
+                        <p>hi</p>
+                        {renderContents(folderContent1)}
+                    </div>
+                )} */}
+            </div>
+        </div>
+    );
+};
+function handleSubFolderClick(item, setShowChildren, showChildren) {
     // console.log("item", item);
     // // if (item.type === 'file') {
     // // Request file content from the backend
     // // socket.emit("get-file-content", item.name); // Assuming item has a filePath property
     // // } else if (item.type === 'folder') {
     // socket.emit("get-folder-contents", item.name); // Assuming item has a folderPath property
-    setShowSubFolderContent(true),
-        setSelectedChildFolder(item)
+    // setShowSubFolderContent(true),
+    //     setSelectedChildFolder(item)
+    if (item.children)
+        setShowChildren(!showChildren);
+
+    // setHasChildren(!hasChildren)
 
     // }
     // Use type as needed
 }
+function renderSubFolder(items, showChildren, setShowChildren) {
+    // const [showChildren, setShowChildren] = useState(false)
+    console.log("items", items);
+    return items?.map(item => {
+        console.log("showchildren", showChildren);
+        // setShowChildren(false);
+        return <div key={item.name} className=" m-5 cursor-pointer" onClick={() => handleSubFolderClick(item, setShowChildren, showChildren)}>
+            {/* {console.log("clicked")}; */}
+            {console.log("item", item)}
+            <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+            <div>{item.name}</div>
 
-function FileExplorer({ filesAndFolders, inputLable, socket, folderContent }) {
-    const rootDir = `./public/${inputLable}`;
-    const [selectedParentFolder, setSelectedParentFolder] = useState(null);
-    const [showSubFolderContent, setShowSubFolderContent] = useState(false);
-    const [selectedChildFolder, setSelectedChildFolder] = useState(null);
-    const [currentDir, setCurrentDir] = useState(rootDir);
+            {showChildren && item.children ? renderSubFolder(item.children, showChildren, setShowChildren) : ""}
 
-    if (!filesAndFolders || filesAndFolders.length === 0) {
-        return (
-            <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
-                <h2 className="text-lg font-semibold p-4">File Explorer</h2>
-                <div className="p-4 flex justify-center items-center h-full">
-                    Loading...
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
-            <h2 className="text-lg font-semibold p-4">File Explorer</h2>
-            <div className="p-4">
-                {filesAndFolders.map(item => {
-                    if (item.type === 'folder') {
-                        // Render select component for folders
-                        return (
-                            <div key={item.name} className="flex items-center mb-2 cursor-pointer" >
-                                <div className=''>
-                                    <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-                                    <span onClick={() => handleParentFolderClick(item, socket, setSelectedParentFolder)}>{item.name}</span>
-
-                                    {selectedParentFolder && selectedParentFolder.name == item.name ? (
-                                        <div>
-                                            {/* <h3>Contents of {selectedParentFolder.name}:</h3> */}
-                                            <ul>
-                                                {folderContent.map((item, index) => (
-                                                    console.log("itemofitem", item),
-                                                    item.type === "folder" ?
-                                                        <div key={index}>
-                                                            <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-                                                            <span onClick={() => handleSubFolderClick(item, setShowSubFolderContent, setSelectedChildFolder)}>{item.name}</span>
-                                                            {console.log("selectedChild folder", selectedChildFolder?.children)}
-                                                            {console.log("showSubFolderContent", showSubFolderContent)}
-
-                                                            {showSubFolderContent ?
-                                                                //  console.log("selected child folder", selectedChildFolder)
-                                                                selectedChildFolder?.children.map((item, index) => {
-                                                                    return <div key={index}>
-                                                                        <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-                                                                        <span onClick={() => handleSubFolderClick(item, setShowSubFolderContent, setSelectedChildFolder)} >{item.name}</span>
-                                                                    </div>
-                                                                })
-
-                                                                : ""}
-                                                        </div>
-                                                        : <div key={index}>
-                                                            <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-                                                            <span >{item.name}</span>
-                                                        </div>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ) : ""}
-                                </div>
-                                {/* {selectedFolder && (
-                                    <div>
-                                        <h3>Contents of {selectedFolder.name}:</h3>
-                                        <ul>
-                                            {folderContent.map((item, index) => (
-                                                <li key={index}>{item.name}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )} */}
-
-                            </div>
-
-
-                        );
-                    } else {
-                        // Render div for files
-                        return (
-                            <div key={item.name} className="flex items-center mb-2 cursor-pointer" onClick={() => handleFileClick(item, socket)}>
-                                <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-                                <span>{item.name}</span>
-                            </div>
-                        );
-                    }
-                })}
-                {/* <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
-            <h2 className="text-lg font-semibold p-4">File Explorer</h2>
-            <div className="p-4">
-                {filesAndFolders.map(item => (
-
-                    <div key={item.name} className="flex items-center mb-2 cursor-pointer" onClick={() => handleFileOrFolderClick(item, currentDir, setCurrentDir, socket)}>
-                        <img src={item.type === 'file' ? "file-icon.png" : "folder-icon.png"} alt="Icon" className="w-6 h-6 mr-2" />
-                        <span>{item.name}</span>
-                    </div>
-                ))}
-            </div>
-        </div> */}
-            </div>
         </div>
-    );
+    })
 }
 
-// function FileExplorer({ filesAndFolders, socket, folderContent }) {
-//     const [expandedFolders, setExpandedFolders] = useState([]);
+// function handleSubFolderClick(item, showChildren, setShowChildren) {
+//     console.log("item22", item);
+//     // // if (item.type === 'file') {
+//     // // Request file content from the backend
+//     // // socket.emit("get-file-content", item.name); // Assuming item has a filePath property
+//     // // } else if (item.type === 'folder') {
+//     // socket.emit("get-folder-contents", item.name); // Assuming item has a folderPath property
+//     // setShowSubFolderContent(true),
+//     //     setSelectedChildFolder(item)
+//     if (item.children)
+//         setShowChildren(true)
+//     // setShowChildren(!showChildren);
 
+//     // setHasChildren(!hasChildren)
 
-//     const handleFolderClick = (folderName, socket) => {
-
-//         socket.emit("get-folder-contents", folderName)
-//         console.log("fodlercaontent", folderContent);
-
-
-//         if (expandedFolders.includes(folderName)) {
-//             setExpandedFolders(expandedFolders.filter(name => name !== folderName));
-//         } else {
-//             setExpandedFolders([...expandedFolders, folderName]);
-//         }
-//     };
-
-//     const renderContents = (items) => {
-//         console.log("items", items);
-//         return items.map(item => {
-//             if (item?.type === 'folder') {
-//                 console.log("itemhaiyar", item);
-//                 const isExpanded = expandedFolders.includes(item.name);
-//                 console.log("isExpanded", isExpanded);
-//                 console.log("foldercontent", folderContent);
-//                 return (
-//                     <div key={item.name}>
-//                         <div className="flex items-center mb-2 cursor-pointer" onClick={() => handleFolderClick(item.name, socket)}>
-//                             <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-//                             <span>{item.name}</span>
-//                         </div>
-//                         {console.log("itemdekhleyar", item)}
-//                         {isExpanded && renderContents(item)}
-//                     </div>
-//                 );
-//             } else {
-//                 return (
-//                     <div key={item.name} className="flex items-center mb-2 cursor-pointer" onClick={() => handleFileClick(item, socket)}>
-//                         <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
-//                         <span>{item.name}</span>
-//                     </div>
-//                 );
-//             }
-//         });
-//     };
-
-//     return (
-//         <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
-//             <h2 className="text-lg font-semibold p-4">File Explorer</h2>
-//             <div className="p-4">
-//                 {console.log("filesand folders", filesAndFolders)}
-//                 {renderContents(filesAndFolders)}
-//             </div>
-//         </div>
-//     );
+//     // }
+//     // Use type as needed
 // }
+// function renderSubFolder(items, showChildren, setShowChildren) {
+//     // const [showChildren, setShowChildren] = useState(false)
+//     // setShowChildren(false)
+//     // let showChildren = false
+//     console.log("items", items);
+//     return items?.map(item => {
+//         console.log("showchildren", showChildren);
+//         // setShowChildren(false);
+//         return <div key={item.name} className=" m-5 cursor-pointer" onClick={() => handleSubFolderClick(item, showChildren, setShowChildren)}>
+//             {/* {console.log("clicked")}; */}
+//             {console.log("item", item)}
+//             <img src="file-icon.png" alt="File Icon" className="w-6 h-6 mr-2" />
+//             <div>{item.name}</div>
+//             {console.log("showchildren", showChildren)}
+
+//             {showChildren && item.children ? renderSubFolder(item.children , setShowChildren) : ""}
+
+
+
+//         </div>
+//     })
+// }
+
+
+
+
+
+
+// export default FileExplorer;
+
+
 
 
 function CodeEditor() {
