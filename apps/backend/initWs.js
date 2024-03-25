@@ -25,7 +25,7 @@ export default function initWs(httpServer) {
             return;
         }
         await getAllFilesFromReplitNameFolder(replId)
-        traverseDirectory(`./public/${replId}`, files, folders)
+        traverseDirectory(`./public/${replId}`, files, folders) // it will create a array of all folders and files
 
         console.log('Files:', files);
         console.log('Folders:', folders);
@@ -42,7 +42,7 @@ export default function initWs(httpServer) {
             const content = getFileContent(desiredPath);
             console.log("contentsoffile", content);
             if (content) {
-                socket.emit('file-content', content
+                socket.emit('file-content', content //emit mtlb data bhejna or on matlb dusri trf data lena
                 );
             } else {
                 socket.emit('file-not-found', filePath);
