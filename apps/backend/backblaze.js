@@ -357,6 +357,8 @@ async function createNewFolder(folderName, currentOpenedFolder, folders) {
             hash: ''
         });
 
+// dummy comment to check PR
+
 
     } catch (error) {
         console.log("Error in creating a new Folder : ", error);
