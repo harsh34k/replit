@@ -26,6 +26,10 @@ const useSocket = (replitName, setrootFilesAndFolders, setfileContent, setfolder
             console.log(`Received content for file '`, content);
             // Handle the received content as needed
         });
+        socket.on('existing-folder', () => {
+            console.log("folder with same name already exists");
+            // Handle the received content as needed
+        });
 
         return () => {
             socket.disconnect();
@@ -54,7 +58,7 @@ function Coding() {
         <div className="flex h-screen">
             {console.log("foldercontentfromparent", folderContent)}
             <FileExplorer socket={socket} filesAndFolders={rootFilesAndFolders} inputLable={inputLable} folderContent={folderContent} />
-            <CodeEditor />
+            <CodeEditor fileContent={fileContent} />
             <Terminal />
         </div>
     );
@@ -71,10 +75,18 @@ function handleFileClick(item, socket) {
 
 
 
+
 const FileExplorer = ({ filesAndFolders, inputLable, socket, folderContent }) => {
     console.log("foldercontentfromchild", folderContent);
     const [currentFolder, setCurrentFolder] = useState("")
     const [isOpen, setIsOpen] = useState(false);
+    const [showFolderInput, setShowFolderInput] = useState(false);
+    const [showFileInput, setShowFileInput] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
+    const [newFileName, setNewFileName] = useState('');
+    const [currentOpenedFolder, setcurrentOpenedFolder] = useState({});
+
+
     // const [folderContent1, setFolderContent1] = useState([]); // State to track folder click count
     const folderContent1 = folderContent ? folderContent : [];
     // setFolderContent1(folderContent)
@@ -87,12 +99,39 @@ const FileExplorer = ({ filesAndFolders, inputLable, socket, folderContent }) =>
         socket.emit("get-folder-contents", folder.name);
         setIsOpen(!isOpen);
         setCurrentFolder(folder.name)
+        setcurrentOpenedFolder(folder)
     };
+
+    function handleAddFolder(event) {
+        // event.preventDefault()
+        if (newFolderName.trim() === '') return;
+        console.log("newFolderName", newFolderName);
+        console.log("currentOpenedFolder", currentOpenedFolder);
+        socket.emit("create-folder", {
+            folderName: newFolderName,
+            currentOpenedFolder: currentOpenedFolder.name // If currentFolder is empty, use the input label
+        });
+
+        setNewFolderName(''); // Clear the input field after creating the folder
+    }
+    function handleAddFile(event) {
+        // event.preventDefault()
+        if (newFileName.trim() === '') return;
+        console.log("newFileName", newFileName);
+        console.log("currentOpenedFolder", currentOpenedFolder);
+        socket.emit("create-file", {
+            fileName: newFileName,
+            currentOpenedFolder: currentOpenedFolder.name // If currentFolder is empty, use the input label
+        });
+
+        setNewFileName(''); // Clear the input field after creating the folder
+    }
 
     // Function to recursively render folder contents
     const renderContents = (items) => {
         return items?.map(item => {
             if (item.type === 'folder') {
+                console.log("clicked item", item);
                 return (
 
                     <div key={item.name} id='' className=" mb-2 cursor-pointer"  >
@@ -101,7 +140,7 @@ const FileExplorer = ({ filesAndFolders, inputLable, socket, folderContent }) =>
                         {isOpen && (currentFolder === item.name) && (
 
 
-                            <Tree data={folderContent1} />
+                            <Tree data={folderContent1} setcurrentOpenedFolder={setcurrentOpenedFolder} socket={socket} />
 
 
 
@@ -123,7 +162,31 @@ const FileExplorer = ({ filesAndFolders, inputLable, socket, folderContent }) =>
 
     return (
         <div className="w-1/3 h-full border-r border-gray-300 overflow-y-auto">
-            <h2 className="text-lg font-semibold p-4">File Explorer</h2>
+            <div className='flex justify-around'>
+                <h2 className="text-lg font-semibold p-4">File Explorer</h2>
+                <div className='font-bold bg-blue-300 h rounded-lg m-1 p-1' onClick={() => setShowFolderInput(!showFolderInput)}>New folder</div>
+                <div className='font-bold bg-blue-300 h rounded-lg m-1 p-1' onClick={() => setShowFileInput(!showFileInput)}>New File</div>
+            </div>
+            {showFolderInput &&
+                <div>
+                    <input
+                        type="text"
+                        placeholder="New folder name"
+                        value={newFolderName}
+                        onChange={(e) => setNewFolderName(e.target.value)}
+                    />
+                    <button className='font-bold bg-blue-300 h rounded-lg m-1 p-1' onClick={() => handleAddFolder()}>Add folder</button>
+                </div>}
+            {showFileInput &&
+                <div>
+                    <input
+                        type="text"
+                        placeholder="New File name"
+                        value={newFileName}
+                        onChange={(e) => setNewFileName(e.target.value)}
+                    />
+                    <button className='font-bold bg-blue-300 h rounded-lg m-1 p-1' onClick={() => handleAddFile()}>Add file</button>
+                </div>}
             <div className="p-4">
 
                 {console.log("filesandfolders", filesAndFolders)}
@@ -134,21 +197,27 @@ const FileExplorer = ({ filesAndFolders, inputLable, socket, folderContent }) =>
 };
 
 
-function Tree({ data }) {
+function Tree({ data, setcurrentOpenedFolder, socket }) {
     return (
         <div>
             {data.map(node => (
-                <TreeNode key={node.name} node={node} />
+                <TreeNode key={node.name} node={node} setcurrentOpenedFolder={setcurrentOpenedFolder} socket={socket} />
             ))}
         </div>
     );
 }
 
-function TreeNode({ node }) {
+function TreeNode({ node, setcurrentOpenedFolder, socket }) {
     const [isOpen, setIsOpen] = React.useState(false);
 
     const toggleOpen = () => {
         setIsOpen(!isOpen);
+        console.log("node", node);
+        if (node.type === "file") {
+            console.log("ney i an file", node.name);
+            socket.emit("get-file-content", node.name);
+        }
+        setcurrentOpenedFolder(node)
     };
 
     return (
@@ -159,10 +228,11 @@ function TreeNode({ node }) {
                 )}
                 {node.name}
             </div>
+            {console.log("item", node)}
             {isOpen && node.children && node.children.length > 0 && (
                 <div style={{ marginLeft: '20px' }}>
                     {node.children.map(child => (
-                        <TreeNode key={child.name} node={child} />
+                        <TreeNode key={child.name} node={child} setcurrentOpenedFolder={setcurrentOpenedFolder} />
                     ))}
                 </div>
             )}
@@ -171,21 +241,46 @@ function TreeNode({ node }) {
 }
 
 
-function CodeEditor() {
+// function CodeEditor({ fileContent }) {
+//     const [code, setCode] = useState(fileContent);
+
+//     return (
+//         <div className="w-1/3 h-full border-r border-l border-gray-300">
+//             <h2 className="text-lg font-semibold p-4">Code Editor</h2>
+//             <textarea
+//                 value={code}
+//                 onChange={e => setCode(e.target.value)}
+//                 className="w-full h-full p-4 outline-none resize-none"
+//                 placeholder="Write your code here..."
+//             ></textarea>
+//         </div>
+//     );
+// }
+function CodeEditor({ fileContent }) {
     const [code, setCode] = useState('');
+
+    useEffect(() => {
+        setCode(fileContent);
+    }, [fileContent]);
+
+    const handleChange = (e) => {
+        console.log("ed", e.target.value);
+        setCode(e.target.value);
+    };
 
     return (
         <div className="w-1/3 h-full border-r border-l border-gray-300">
             <h2 className="text-lg font-semibold p-4">Code Editor</h2>
             <textarea
                 value={code}
-                onChange={e => setCode(e.target.value)}
+                onChange={handleChange}
                 className="w-full h-full p-4 outline-none resize-none"
                 placeholder="Write your code here..."
             ></textarea>
         </div>
     );
 }
+
 
 function Terminal() {
     const [output, setOutput] = useState('');

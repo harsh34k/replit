@@ -1,8 +1,9 @@
 import { Server } from "socket.io";
 import { getRootFilesAndFolders, getFileContent, getFolderContents, traverseDirectory } from "./wsHandler.js";
-import { getAllFilesFromReplitNameFolder } from "./backblaze.js";
+import { getAllFilesFromReplitNameFolder, createNewFolder, createNewFile } from "./backblaze.js";
 import path from 'path';
 import fs from 'fs';
+import { log } from "console";
 
 export default function initWs(httpServer) {
     const io = new Server(httpServer, {
@@ -51,24 +52,6 @@ export default function initWs(httpServer) {
 
         socket.on("get-folder-contents", async (folderName) => {
             console.log("atleast reaching here");
-            // function modifyPath(inputPath) {
-            //     let newPath = inputPath;
-
-            //     function checkPathExists(filePath) {
-            //         try {
-            //             fs.accessSync(filePath, fs.constants.F_OK);
-            //             return true;
-            //         } catch (err) {
-            //             return false;
-            //         }
-            //     }
-
-            //     while (newPath !== '.' && !checkPathExists(newPath)) {
-            //         newPath = path.dirname(newPath);
-            //     }
-
-            //     return newPath;
-            // }
             const { path: desiredPath } = folders.find(folder => folder.name === folderName);
             console.log("folderPath", desiredPath);
             const contents = await getFolderContents(desiredPath);
@@ -76,11 +59,35 @@ export default function initWs(httpServer) {
             socket.emit('folder-contents', contents);
         });
 
+        socket.on("create-folder", async ({ folderName, currentOpenedFolder }) => {
+            createNewFolder(folderName, currentOpenedFolder, folders)
+
+        })
+        socket.on("create-file", async ({ fileName, currentOpenedFolder }) => {
+            createNewFile(fileName, currentOpenedFolder, files, folders)
+
+        })
+
         socket.on("disconnect", () => {
             console.log(socket.id + " disconnected");
         });
     });
 }
+
+// async function  createNewFolder (){
+//     await b2.authorize();
+//     if (folders.some(folder => folder.name === folderName)) {
+//         return socket.emit('existing-folder');
+//     }
+//     const { path } = folders.find(folder => folder.name === currentOpenedFolder)
+//     console.log("path", path);
+//     const newFolderPath = `${path}/${folderName}`;
+//     // create new .bzEmpty file inside newFolderPath
+//     fs.writeFileSync(`${newFolderPath}/.bzEmpty`, "This is an empty folder.");
+//     const content = fs.readFileSync(`${newFolderPath}/.bzEmpty`, 'utf-8');
+//     console.log("foldername", folderName);
+//     console.log("parentFolder", currentOpenedFolder);
+// }
 
 
 // // import { Server, Socket } from "socket.io";

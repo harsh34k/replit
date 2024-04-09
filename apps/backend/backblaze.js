@@ -116,7 +116,7 @@
 
 
 import B2 from 'backblaze-b2';
-import { response } from 'express';
+import { replitNameToExport } from './app.js';
 import fs from "fs"
 import path from 'path';
 const BLACKBLAZE_DESTINATION_BUCKETNAME = "UsersBucket"
@@ -298,6 +298,113 @@ const createFolderAndSubFolder = (filePath, folderName, fileData) => {
     fs.writeFileSync(destinationPath, fileData.data);
 };
 
+async function createNewFolder(folderName, currentOpenedFolder, folders) {
+    try {
+        await b2.authorize();
+        console.log("in folder", currentOpenedFolder);
+        // let path1;
+        // if (folders.some(folder => folder.name === folderName)) {
+        //     return socket.emit('existing-folder');
+        // }
+        // console.log("replitNameToExport",replitNameToExport);
+        // if(!currentOpenedFolder){
+        //   let  path1 = `./public/${replitNameToExport}`
+        // }
+        // let  {path:path1}  = folders.find(folder => folder.name === currentOpenedFolder)
+        // console.log("path", path1);
+
+        let path;
+
+        if (folders.some(folder => folder.name === folderName)) {
+            return socket.emit('existing-folder');
+        }
+
+        console.log("replitNameToExport", replitNameToExport);
+
+        if (!currentOpenedFolder) {
+            path = `./public/${replitNameToExport}`;
+        } else {
+            const folder = folders.find(folder => folder.name === currentOpenedFolder);
+            if (folder) {
+                path = folder.path;
+                console.log("path", path);
+            } else {
+                console.log("Folder not found:", currentOpenedFolder);
+            }
+        }
+
+        //create new folder here
+        const newFolderPath = `${path}/${folderName}`;
+        console.log("newFolderPath", newFolderPath);
+        fs.mkdirSync(newFolderPath, { recursive: true });
+        // fs.existsSync
+        // create new .bzEmpty file inside newFolderPath
+        fs.writeFileSync(`${newFolderPath}/.bzEmpty`, "This is an empty folder.");
+        const content = fs.readFileSync(`${newFolderPath}/.bzEmpty`, 'utf-8');
+
+        const { data: { authorizationToken, uploadUrl } } = await b2.getUploadUrl({
+            bucketId: BLACKBLAZE_DESTINATION_BUCKETID,
+        });
+        console.log("foldername", folderName);
+        console.log("parentFolder", currentOpenedFolder);
+        await b2.uploadFile({
+            uploadUrl,
+            uploadAuthToken: authorizationToken,
+            fileName: `${newFolderPath}/.bzEmpty`,
+            data: content,
+            contentLength: content.byteLength,
+            mime: 'application/octet-stream', // Adjust MIME type if necessary
+            hash: ''
+        });
 
 
-export { copyBaseFilesFromBlackBlaze, getAllFilesFromReplitNameFolder }
+    } catch (error) {
+        console.log("Error in creating a new Folder : ", error);
+    }
+}
+
+async function createNewFile(fileName, currentOpenedFolder, files, folders) {
+    try {
+        await b2.authorize();
+        console.log("in file");
+        if (files.some(file => file.name === fileName)) {
+            return socket.emit('existing-file');
+        }
+        const { path } = folders.find(folder => folder.name === currentOpenedFolder)
+        console.log("path", path);
+
+
+        //create new folder here
+
+
+        const newFilePath = `${path}/${fileName}`;
+        // fs.mkdirSync(newFolderPath, { recursive: true });
+        // fs.existsSync
+        // create new .bzEmpty file inside newFolderPath
+        fs.writeFileSync(`${newFilePath}`, "This is an empty file.");
+        const content = fs.readFileSync(`${newFilePath}`, 'utf-8');
+
+        const { data: { authorizationToken, uploadUrl } } = await b2.getUploadUrl({
+            bucketId: BLACKBLAZE_DESTINATION_BUCKETID,
+        });
+        console.log("fileName", fileName);
+        console.log("parentFolder", currentOpenedFolder);
+        await b2.uploadFile({
+            uploadUrl,
+            uploadAuthToken: authorizationToken,
+            fileName: `${newFilePath}`,
+            data: content,
+            contentLength: content.byteLength,
+            mime: 'application/octet-stream', // Adjust MIME type if necessary
+            hash: ''
+        });
+
+
+    } catch (error) {
+        console.log("Error in creating a new Folder : ", error);
+    }
+}
+
+
+
+export { copyBaseFilesFromBlackBlaze, getAllFilesFromReplitNameFolder, createNewFolder, createNewFile }

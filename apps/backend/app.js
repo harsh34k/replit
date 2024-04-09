@@ -6,6 +6,7 @@ import cors from 'cors';
 
 
 // const app = express();
+let replitNameToExport;
 export default function initHttp(app) {
     app.use(cors());
     app.use(express.json({ limit: "16kb" }))
@@ -17,10 +18,12 @@ export default function initHttp(app) {
     })
 
     console.log("in app.js");
+
     app.post('/', async (req, res) => {
         try {
             console.log("tryyy");
             const { languageValue, replitName } = req.body;
+            replitNameToExport = replitName
             if (!languageValue || !replitName) {
                 throw new Error(400, "Missing required fields")
             }
@@ -40,6 +43,8 @@ export default function initHttp(app) {
         }
     });
 }
+
+export { replitNameToExport }
 
 
 
